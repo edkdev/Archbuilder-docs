@@ -1,0 +1,683 @@
+<title>ArchBuilder User Guide</title>
+<meta name="description" content="How to install ArchBuilder for Blender and use it to create and edit buildings, walls, roofs, openings, stairs and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..800&family=JetBrains+Mono:wght@400;600&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+/* Layout: a drawing-register index down the left, one reading column on the right; stacks to one column on phones. */
+:root {
+  --paper: #f4f7fa;
+  --sheet: #ffffff;
+  --ink: #0f172a;
+  --muted: #4a5a70;
+  --line: #d6dee8;
+  --accent: #0369a1;
+  --accent-soft: #e3f1fa;
+  --caution: #9a4a06;
+  --caution-soft: #fdf1e3;
+  --key: #ffffff;
+  --key-edge: #b9c5d4;
+  --font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "SFMono-Regular", Menlo, monospace;
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.25rem;
+  --step-2: 1.6rem;
+  --step-3: 2.35rem;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0b1220; --sheet: #111a2b; --ink: #e3e9f2; --muted: #9aa9bd; --line: #223047;
+    --accent: #4cc3f7; --accent-soft: #0e2b40; --caution: #f5b451; --caution-soft: #2b2112;
+    --key: #1a2538; --key-edge: #3a4a63; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0b1220; --sheet: #111a2b; --ink: #e3e9f2; --muted: #9aa9bd; --line: #223047;
+  --accent: #4cc3f7; --accent-soft: #0e2b40; --caution: #f5b451; --caution-soft: #2b2112;
+  --key: #1a2538; --key-edge: #3a4a63; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--font-body); font-size: var(--step-0); line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+.wrap {
+  max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 0 64px;
+  display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 56px;
+}
+
+/* ---------- Header ---------- */
+.masthead { grid-column: 1 / -1; padding-block: 48px 8px; }
+.eyebrow {
+  font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent); margin: 0 0 10px;
+}
+.masthead h1 {
+  font-family: var(--font-display); font-stretch: 118%; font-weight: 800;
+  font-size: clamp(2.1rem, 5.5vw, 3.4rem); line-height: 1.02; letter-spacing: -0.01em;
+  margin: 0; text-wrap: balance;
+}
+.masthead .lede { max-width: 62ch; color: var(--muted); font-size: var(--step-1); line-height: 1.5; margin: 14px 0 0; }
+/* dimension line: the one drafting flourish, carrying the real spec */
+.dim {
+  display: flex; align-items: center; gap: 12px; margin-top: 28px; max-width: 620px;
+  font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted);
+}
+.dim::before, .dim::after {
+  content: ""; flex: 1; height: 9px; min-width: 20px;
+  border-left: 1px solid var(--muted); border-right: 1px solid var(--muted);
+  background: linear-gradient(var(--muted), var(--muted)) center / 100% 1px no-repeat;
+}
+.dim span { white-space: nowrap; }
+
+/* ---------- Index ---------- */
+.index { position: sticky; top: 20px; align-self: start; max-height: calc(100vh - 40px); overflow-y: auto; padding-bottom: 20px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.index details { border-top: 1px solid var(--line); }
+.index summary { list-style: none; cursor: pointer; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 12px 0 8px; }
+.index summary::-webkit-details-marker { display: none; }
+.index .group { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 18px 0 4px; }
+.index ol { list-style: none; margin: 0; padding: 0; }
+.index li a {
+  display: block; padding: 4px 10px; margin-left: -10px; border-left: 2px solid transparent;
+  color: var(--ink); text-decoration: none; font-size: 0.95rem; line-height: 1.35;
+}
+.index li a:hover { color: var(--accent); }
+.index li a.on { border-left-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+/* ---------- Content ---------- */
+main { min-width: 0; }
+section { padding-block: 36px 8px; border-top: 1px solid var(--line); }
+section:first-of-type { border-top: 0; padding-top: 8px; }
+.kicker { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+h2 {
+  font-family: var(--font-display); font-stretch: 112%; font-weight: 750; font-size: var(--step-3);
+  line-height: 1.1; margin: 0 0 14px; text-wrap: balance; letter-spacing: -0.005em;
+}
+h3 { font-family: var(--font-display); font-stretch: 108%; font-weight: 700; font-size: var(--step-1); margin: 30px 0 8px; text-wrap: balance; }
+p, ul, ol { max-width: 68ch; }
+p { margin: 0 0 14px; }
+ul, ol.steps { padding-left: 1.3em; margin: 0 0 16px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--muted); }
+strong { font-weight: 700; }
+
+/* Blender UI labels and panel paths */
+.ui {
+  font-weight: 600; white-space: nowrap; padding: 0 5px; border-radius: 4px;
+  background: var(--accent-soft); color: var(--ink);
+}
+.path { font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted); display: block; margin: -4px 0 14px; }
+.path b { color: var(--ink); font-weight: 600; }
+
+kbd {
+  display: inline-block; min-width: 1.7em; padding: 1px 6px 2px; margin: 0 1px;
+  font-family: var(--font-mono); font-size: 0.78em; font-weight: 600; line-height: 1.5; text-align: center;
+  background: var(--key); color: var(--ink); border: 1px solid var(--key-edge); border-bottom-width: 3px; border-radius: 5px;
+  white-space: nowrap; vertical-align: 0.05em;
+}
+
+figure { margin: 18px 0 24px; max-width: 820px; }
+figure img { display: block; width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--line); background: #0b1220; }
+figcaption { font-size: var(--step--1); color: var(--muted); margin-top: 8px; }
+
+.note, .caution { max-width: 68ch; padding: 12px 16px; border-radius: var(--radius); margin: 0 0 18px; font-size: 0.98rem; }
+.note { background: var(--accent-soft); }
+.caution { background: var(--caution-soft); }
+.note b:first-child, .caution b:first-child { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 2px; }
+.note b:first-child { color: var(--accent); }
+.caution b:first-child { color: var(--caution); }
+
+/* Numbered steps: a real sequence */
+ol.steps { list-style: none; padding: 0; counter-reset: s; max-width: 72ch; }
+ol.steps > li { counter-increment: s; position: relative; padding-left: 46px; margin-bottom: 16px; }
+ol.steps > li::before {
+  content: counter(s); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; font-family: var(--font-display); font-weight: 750; font-size: 0.95rem;
+  color: var(--sheet); background: var(--accent);
+}
+
+/* Key and option tables */
+.table-wrap { overflow-x: auto; margin: 0 0 20px; max-width: 820px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.97rem; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); }
+th { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+td:first-child { white-space: nowrap; width: 1%; padding-right: 20px; }
+
+/* Option grids (what each dropdown offers) */
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; max-width: 820px; margin: 0 0 20px; }
+.opt { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; min-width: 0; }
+.opt h4 { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px; font-weight: 600; }
+.opt p { margin: 0; font-size: 0.95rem; }
+
+/* Tool cards in the shortcuts reference */
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin: 0 0 20px; }
+.keys .card { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px 6px; min-width: 0; }
+.keys h3 { margin: 0 0 8px; font-size: 1.05rem; }
+.keys table { font-size: 0.92rem; }
+.keys td { padding: 5px 10px 5px 0; }
+.keys tr:last-child td { border-bottom: 0; }
+
+footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 20px; color: var(--muted); font-size: var(--step--1); }
+
+@media (max-width: 900px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 0; padding-inline: 16px; }
+  .masthead { padding-block: 32px 20px; }
+  .index { position: static; max-height: none; overflow: visible; padding-bottom: 8px; }
+  .index details:not([open]) { border-bottom: 1px solid var(--line); }
+  h2 { font-size: 1.9rem; }
+}
+@media (min-width: 901px) { .index summary { pointer-events: none; } }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">Blender add-on &middot; User guide</p>
+    <h1>ArchBuilder User Guide</h1>
+    <p class="lede">How to install ArchBuilder, draw and generate buildings, and change anything you have made afterwards. Every part stays editable: select it and adjust its settings.</p>
+    <div class="dim" aria-label="Version 2.3.0 for Blender 4.2 or newer"><span>v2.3.0 &nbsp;&middot;&nbsp; Blender 4.2 or newer</span></div>
+  </header>
+
+  <nav class="index" aria-label="Contents">
+    <details id="toc" open>
+      <summary>Contents</summary>
+      <p class="group">Start</p>
+      <ol>
+        <li><a href="#install">Install &amp; open</a></li>
+        <li><a href="#basics">How ArchBuilder works</a></li>
+        <li><a href="#first-house">Your first house</a></li>
+      </ol>
+      <p class="group">Build</p>
+      <ol>
+        <li><a href="#generator">One-click buildings</a></li>
+        <li><a href="#walls">Walls &amp; rooms</a></li>
+        <li><a href="#facades">Auto facades</a></li>
+        <li><a href="#floors">Floors</a></li>
+        <li><a href="#roofs">Roofs</a></li>
+      </ol>
+      <p class="group">Add detail</p>
+      <ol>
+        <li><a href="#openings">Doors &amp; windows</a></li>
+        <li><a href="#balconies">Balconies</a></li>
+        <li><a href="#stairs">Stairs &amp; ramps</a></li>
+        <li><a href="#railings">Railings</a></li>
+        <li><a href="#pillars">Pillars &amp; colonnades</a></li>
+        <li><a href="#cutouts">Cutouts</a></li>
+      </ol>
+      <p class="group">Finish</p>
+      <ol>
+        <li><a href="#materials">Materials</a></li>
+        <li><a href="#defaults">Defaults &amp; snapping</a></li>
+        <li><a href="#languages">Languages</a></li>
+      </ol>
+      <p class="group">Reference</p>
+      <ol>
+        <li><a href="#shortcuts">Keyboard shortcuts</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+      </ol>
+    </details>
+  </nav>
+
+  <main>
+    <!-- ============ START ============ -->
+    <section id="install">
+      <p class="kicker">Start</p>
+      <h2>Install &amp; open</h2>
+      <h3>Install the add-on</h3>
+      <ol class="steps">
+        <li>In Blender, open <span class="ui">Edit</span> &rsaquo; <span class="ui">Preferences</span> &rsaquo; <span class="ui">Get Extensions</span>.</li>
+        <li>Click the small down-arrow in the top-right corner of that page and choose <span class="ui">Install from Disk&hellip;</span></li>
+        <li>Select <strong>arch_builder.zip</strong> and click <span class="ui">Install from Disk</span>. Don't unzip it first.</li>
+      </ol>
+      <p>You can also drag <strong>arch_builder.zip</strong> straight onto the Blender window. To update, install the new zip the same way. It replaces the old version.</p>
+
+      <h3>Open the panel</h3>
+      <p>In the 3D Viewport, press <kbd>N</kbd> to show the sidebar and click the <span class="ui">ArchBuilder</span> tab. All tools start from here.</p>
+      <p>Two controls sit at the top of the panel:</p>
+      <ul>
+        <li><strong>Language</strong> (globe icon) switches the whole interface. See <a href="#languages">Languages</a>.</li>
+        <li><span class="ui">Material Preview Shading</span> switches the viewport to Material Preview so you can see textures and glass while you work.</li>
+      </ul>
+    </section>
+
+    <section id="basics">
+      <p class="kicker">Start</p>
+      <h2>How ArchBuilder works</h2>
+      <p>There are two ways to create things. <strong>Interactive tools</strong> let you click in the viewport to draw walls, floors, roofs, railings, stairs and colonnades, or to place doors, windows, balconies, pillars and cutouts. <strong>One-click buttons</strong> create something complete from the current settings, such as a whole building, a roof on a room or a stair at the 3D cursor.</p>
+
+      <h3>Everything stays editable</h3>
+      <p>Click any object ArchBuilder made and a <strong>Selected&hellip;</strong> panel appears below the main panel, for example <span class="ui">Selected Wall Parameters</span> or <span class="ui">Selected Roof Parameters</span>. Change a value there and the object rebuilds straight away.</p>
+      <div class="caution"><b>Avoid Edit Mode</b>ArchBuilder rebuilds objects from their settings. Changes made by hand in Edit Mode are replaced the next time the object rebuilds. Use the Selected panels instead.</div>
+
+      <h3>While a tool is running</h3>
+      <ul>
+        <li>A guide in the bottom-left corner of the viewport lists the keys for that tool.</li>
+        <li>You can still orbit and zoom with the middle mouse button and the mouse wheel.</li>
+        <li><kbd>Right-click</kbd> or <kbd>Esc</kbd> cancels. In the drawing tools, right-click also finishes the current shape once you have enough points.</li>
+        <li><kbd>Ctrl</kbd>&thinsp;+&thinsp;<kbd>Z</kbd> undoes a finished action as usual. Inside the wall, floor, roof and railing tools, <kbd>Backspace</kbd> removes the last point you placed.</li>
+      </ul>
+    </section>
+
+    <section id="first-house">
+      <p class="kicker">Start</p>
+      <h2>Your first house in six steps</h2>
+      <ol class="steps">
+        <li>In <span class="ui">Draw Walls &amp; Facades</span>, set <span class="ui">Storeys</span> to 2, then click <span class="ui">Draw Wall</span>.</li>
+        <li>Click in the viewport to place each corner. Hold <kbd>Shift</kbd> to keep walls straight. Finish by clicking the green ring on your first corner. The room closes and gets a floor, plus a slab between the storeys.</li>
+        <li>With the wall still selected, go to <span class="ui">Selected Wall Parameters</span> &rsaquo; <span class="ui">Add Roof to Wall</span> and click <span class="ui">+ Gable</span>.</li>
+        <li>Open <span class="ui">Add Doors</span>, choose a <span class="ui">Door Type</span> and click <span class="ui">+ Place Door</span>. Move the mouse over a wall and click to place it.</li>
+        <li>Open <span class="ui">Add Windows</span> and click <span class="ui">+ Place Window</span>. Press <kbd>&uarr;</kbd> to move to the upper floor, then click to place. Repeat for more windows.</li>
+        <li>Select the wall and pick an <span class="ui">Exterior Wall Finish</span>, such as Red Brick (PBR). Click <span class="ui">Material Preview Shading</span> to see it.</li>
+      </ol>
+      <figure>
+        <img src="gifs/walls.gif" alt="Drawing a closed room with live wall dimensions" loading="lazy" width="960" height="488">
+        <figcaption>Drawing a room. Live dimensions show the length of the wall you are drawing.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ BUILD ============ -->
+    <section id="generator">
+      <p class="kicker">Build</p>
+      <h2>One-click buildings</h2>
+      <span class="path">ArchBuilder &rsaquo; <b>1-Click Building Generator</b></span>
+      <p>Generates a complete building with walls, floors, windows, entrances, balconies and a roof. Choose the settings, then click <span class="ui">+ Generate Building</span>.</p>
+      <div class="opts">
+        <div class="opt"><h4>Archetype</h4><p>Apartment Building, Office Block, Skyscraper / High-Rise, Townhouse</p></div>
+        <div class="opt"><h4>Footprint</h4><p>Rectangle, L-Shaped Wing, Courtyard / U-Shaped, Stepped Tower (chamfered)</p></div>
+        <div class="opt"><h4>Size</h4><p>Storeys, Width, Depth</p></div>
+        <div class="opt"><h4>Facade</h4><p>Window Style, window Sides, entrance Doors; Roof, Balconies and Floor Slabs on or off</p></div>
+      </div>
+      <p><span class="ui">Roll Variation</span> picks a new random <span class="ui">Seed</span> and rebuilds with different windows, doors, finishes and roof layout. Keep rolling until you like one. To come back to a result later, note its seed number.</p>
+      <figure>
+        <img src="gifs/one_click.gif" alt="Generating a building and rolling variations" loading="lazy" width="960" height="532">
+        <figcaption>Generate, then Roll Variation for new facades and roofs.</figcaption>
+      </figure>
+
+      <h3>Edit a generated building</h3>
+      <p>Click any part of the building to open <span class="ui">Selected Building Attributes</span>. Every setting there updates the whole building:</p>
+      <ul>
+        <li><strong>Massing &amp; Structure:</strong> archetype, footprint, storeys and storey height, width, depth, slabs between storeys and the variation seed.</li>
+        <li><strong>Windows &amp; Fenestration:</strong> style, which facades get windows, size and sill height, windows per wall or bay spacing, frame and glass.</li>
+        <li><strong>Entrance Doors</strong> and <strong>Balcony Doors:</strong> style, size and materials.</li>
+        <li><strong>Balconies:</strong> layout, pattern, facades, shape, size, railing, support and finishes. Balconies need at least 2 storeys.</li>
+        <li><strong>Finishes &amp; Roof:</strong> exterior and interior walls, roof style, roof variation (with its own roll button) and roof finish.</li>
+      </ul>
+      <p>The walls of a generated building are managed by the building. Their wall panel only points you back to <span class="ui">Selected Building Attributes</span>.</p>
+      <div class="caution"><b>One generated building per scene</b>Clicking <span class="ui">+ Generate Building</span> again replaces the generated building already in the scene. To try another design while keeping this one, save the file first or work in a new scene.</div>
+    </section>
+
+    <section id="walls">
+      <p class="kicker">Build</p>
+      <h2>Walls &amp; rooms</h2>
+      <span class="path">ArchBuilder &rsaquo; <b>Draw Walls &amp; Facades</b> &rsaquo; <b>Draw Wall</b></span>
+      <p>Walls are drawn corner by corner. Before you start, set <span class="ui">Storeys</span> and <span class="ui">Height/Fl</span> (height per floor). With more than one storey, <span class="ui">Floor Slabs</span> adds a slab between each floor.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Key</th><th>While drawing walls</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Click</kbd></td><td>Place a corner.</td></tr>
+          <tr><td>Click the green ring</td><td>Close the room. Closed rooms get a floor and can take a roof.</td></tr>
+          <tr><td><kbd>Right-click</kbd> <kbd>Enter</kbd> <kbd>Space</kbd></td><td>Finish an open wall that isn't a closed room.</td></tr>
+          <tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd></td><td>Add or remove storeys (also <kbd>Page Up</kbd> / <kbd>Page Down</kbd>).</td></tr>
+          <tr><td><kbd>Shift</kbd></td><td>Snap to 45&deg; / 90&deg; angles.</td></tr>
+          <tr><td><kbd>Ctrl</kbd></td><td>Snap corners to the grid.</td></tr>
+          <tr><td><kbd>P</kbd></td><td>Turn Auto Facade on or off for this wall.</td></tr>
+          <tr><td><kbd>Backspace</kbd></td><td>Remove the last corner (also <kbd>Ctrl</kbd>&thinsp;+&thinsp;<kbd>Z</kbd>).</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Cancel.</td></tr>
+        </tbody>
+      </table></div>
+      <figure>
+        <img src="gifs/storeys.gif" alt="Adding storeys with the arrow keys while drawing" loading="lazy" width="960" height="542">
+        <figcaption>Press the arrow keys while drawing to stack storeys.</figcaption>
+      </figure>
+
+      <h3>Edit a wall</h3>
+      <p>Select the wall to open <span class="ui">Selected Wall Parameters</span>:</p>
+      <ul>
+        <li><strong>Structure &amp; Room:</strong> storeys, storey height, thickness and alignment (centre, interior or exterior side of the line you drew). <span class="ui">Ground Floor Slab</span> and <span class="ui">Floor Slabs Between Storeys</span> apply to closed rooms. <span class="ui">Fit Wall to Roof</span> raises the walls to meet a pitched or arched roof.</li>
+        <li><strong>Wall &amp; Room Materials:</strong> exterior finish, an optional separate interior finish, the floor finish and texture scales.</li>
+        <li><strong>Quick-add buttons:</strong> <span class="ui">+ Gable</span>, <span class="ui">+ Hip</span>, <span class="ui">+ Flat</span>, <span class="ui">+ Arched</span> roofs, and <span class="ui">+ Door</span>, <span class="ui">+ Glass Door</span>, <span class="ui">+ Garage Door</span>, <span class="ui">+ Window</span> and plain holes.</li>
+      </ul>
+      <p>To move or rotate a whole room, select the wall and use Blender's own <kbd>G</kbd> and <kbd>R</kbd>. Doors, windows, balconies and roofs you added to it are attached to the wall and move with it.</p>
+    </section>
+
+    <section id="facades">
+      <p class="kicker">Build</p>
+      <h2>Auto facades</h2>
+      <p>An auto facade fills a closed room with windows, entrances and, if you want them, balconies and a staircase. It is a quick way to turn a hand-drawn footprint into a building.</p>
+      <ul>
+        <li><strong>Before drawing:</strong> turn on <span class="ui">Auto Facade</span> in <span class="ui">Draw Walls &amp; Facades</span> and choose the style, window type, which walls get windows, entrances, <span class="ui">Balconies</span> and <span class="ui">Staircase</span>. The facade is added as soon as you close the room. You can also press <kbd>P</kbd> while drawing.</li>
+        <li><strong>On an existing wall:</strong> select it and click <span class="ui">Apply Facade to Selected Wall</span>, or tick <span class="ui">Auto Facade (Doors, Windows, Balconies)</span> in its wall panel.</li>
+      </ul>
+      <h3>Fine-tune the facade</h3>
+      <p>The wall panel's facade section controls the layout:</p>
+      <ul>
+        <li><strong>Windows:</strong> windows per wall or bay spacing, corner margin, which floors (<span class="ui">From Floor</span> to <span class="ui">To</span>, where 0 means the top floor), style, size and sill height.</li>
+        <li><strong>Entrances:</strong> which wall (<span class="ui">Wall #</span>), <span class="ui">Position Along Wall</span>, door type and size.</li>
+        <li><strong>Balconies:</strong> count or spacing, pattern, which walls, and the balcony door.</li>
+        <li><strong>Materials &amp; Finishes:</strong> window frame and glass, door leaf, frame and hardware, balcony slab and railing.</li>
+      </ul>
+    </section>
+
+    <section id="floors">
+      <p class="kicker">Build</p>
+      <h2>Floors</h2>
+      <span class="path">ArchBuilder &rsaquo; <b>Draw Floor (Interactive)</b></span>
+      <p>Closed rooms get a floor automatically when <span class="ui">Auto Floor for Rooms</span> is on (in <a href="#defaults">Element Creation Defaults</a>). To draw a slab of any shape yourself, such as a terrace or mezzanine, use <span class="ui">Draw Floor</span>: click each corner, then click the first corner, right-click or press <kbd>Enter</kbd> to finish.</p>
+      <p><span class="ui">Selected Floor Parameters</span> sets the thickness, elevation offset, material and texture scale.</p>
+    </section>
+
+    <section id="roofs">
+      <p class="kicker">Build</p>
+      <h2>Roofs</h2>
+      <p>ArchBuilder fits a roof to the room's real outline, including L, T and U shapes, bays and chamfered corners. Wings meet in proper ridges and valleys.</p>
+      <div class="opts">
+        <div class="opt"><h4>Gable</h4><p>Pitched, with triangular end walls.</p></div>
+        <div class="opt"><h4>Hip</h4><p>Pitched on every side, with no end walls.</p></div>
+        <div class="opt"><h4>Flat</h4><p>Flat slab with an optional parapet.</p></div>
+        <div class="opt"><h4>Arched</h4><p>Barrel vault. Crossing wings form groin vaults.</p></div>
+      </div>
+      <h3>Add a roof</h3>
+      <ul>
+        <li><strong>On a room:</strong> select a closed wall, then click <span class="ui">+ Gable</span>, <span class="ui">+ Hip</span>, <span class="ui">+ Flat</span> or <span class="ui">+ Arched</span> in its wall panel. Or use <span class="ui">Add Roof to Room</span> in the main panel with a <span class="ui">Roof Type</span>.</li>
+        <li><strong>Any outline:</strong> <span class="ui">Draw Roof (Interactive)</span>. Click each corner, then click the first corner, right-click or press <kbd>Enter</kbd> to finish. <kbd>Shift</kbd> snaps angles, <kbd>Ctrl</kbd> snaps to the grid and <kbd>Backspace</kbd> removes the last corner.</li>
+      </ul>
+      <figure>
+        <img src="gifs/roofs.gif" alt="Rolling roof variations and switching to an arched roof on a U-shaped room" loading="lazy" width="960" height="488">
+        <figcaption>Roof Variation re-rolls the ridge layout. The same room shown with an arched roof.</figcaption>
+      </figure>
+      <h3>Edit a roof</h3>
+      <p><span class="ui">Selected Roof Parameters</span> gives you the style, thickness, eaves overhang, elevation offset and finish, plus:</p>
+      <ul>
+        <li><strong>Pitched roofs:</strong> ridge height and main ridge axis. <span class="ui">Roof Variation</span> and its roll button change which wing carries the main ridge and how wing ends finish (gable, hip or clipped gable). You can also turn the front and back gable walls on or off, or fill the gables with wall.</li>
+        <li><strong>Flat roofs:</strong> parapet height and thickness.</li>
+        <li><strong>Arched roofs:</strong> rise, smoothness (subdivisions) and span axis.</li>
+      </ul>
+      <p>To merge two overlapping roofs into one, select both and click <span class="ui">Intersect / Join Selected Roofs</span>.</p>
+    </section>
+
+    <!-- ============ DETAIL ============ -->
+    <section id="openings">
+      <p class="kicker">Add detail</p>
+      <h2>Doors &amp; windows</h2>
+      <span class="path">ArchBuilder &rsaquo; <b>Add Doors</b> / <b>Add Windows</b></span>
+      <p>Pick a type, click the place button, then move the mouse over a wall. The opening slides along the wall under your cursor. Click to place it. The hole is cut cleanly and the frame, glass and sill are added.</p>
+      <div class="opts">
+        <div class="opt"><h4>Door types</h4><p>Single swing, double French, glass door, sectional garage door, or a plain door opening</p></div>
+        <div class="opt"><h4>Window types</h4><p>Glazed window, or a plain window opening</p></div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Key</th><th>While placing</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd></td><td>Choose the floor on a multi-storey wall.</td></tr>
+          <tr><td><kbd>A</kbd></td><td>Go back to picking the floor from where the mouse is.</td></tr>
+          <tr><td><kbd>F</kbd></td><td>Flip which side faces out.</td></tr>
+          <tr><td><kbd>Click</kbd></td><td>Place.</td></tr>
+          <tr><td><kbd>Right-click</kbd> <kbd>Esc</kbd></td><td>Cancel.</td></tr>
+        </tbody>
+      </table></div>
+      <figure>
+        <img src="gifs/openings.gif" alt="Placing doors, a garage door and windows on a wall" loading="lazy" width="960" height="512">
+        <figcaption>Doors, a garage door and windows placed on a wall.</figcaption>
+      </figure>
+      <h3>Edit a door or window</h3>
+      <p>Select it to open <span class="ui">Selected Opening Parameters</span>:</p>
+      <ul>
+        <li><strong>Style:</strong> <em>Full Fixture</em>, <em>Frame Only</em>, or <em>Hole Only</em> if you want to use your own assets.</li>
+        <li><strong>Size:</strong> width, height, and sill height (windows) or threshold height (doors).</li>
+        <li><strong>Wall Placement:</strong> <span class="ui">Segment #</span> chooses which straight section of the wall it sits in, and <span class="ui">Position (0-1)</span> slides it along that section. <span class="ui">Flip Facing</span> turns it round.</li>
+        <li><strong>Frame &amp; Components:</strong> frame thickness, window panes across and down, outer sill, door leaf thickness and <span class="ui">Door Open Angle</span>. Garage doors add the lift amount, panel count and style, window inserts, tracks and handle.</li>
+        <li><strong>Materials:</strong> frame, door leaf, glass (clear or frosted) and handle.</li>
+      </ul>
+      <p>New doors and windows take their default sizes from <a href="#defaults">Element Creation Defaults</a>.</p>
+    </section>
+
+    <section id="balconies">
+      <p class="kicker">Add detail</p>
+      <h2>Balconies</h2>
+      <span class="path">ArchBuilder &rsaquo; <b>Add Balconies</b></span>
+      <p>Click <span class="ui">+ Place Balcony</span> and move the mouse over a wall or a building corner. The balcony attaches to the outside of the wall with its slab, railing and supports. Click to place it.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Key</th><th>While placing</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd></td><td>Rectangular, curved bow, chamfered, or wrap-around corner.</td></tr>
+          <tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd> / <kbd>A</kbd></td><td>Choose the floor / go back to picking it from the mouse.</td></tr>
+          <tr><td><kbd>F</kbd></td><td>Flip between the outside and inside of the wall.</td></tr>
+        </tbody>
+      </table></div>
+      <p><span class="ui">Draw Custom Balcony</span> lets you size the balcony yourself: click on the wall to set its centre, then move the mouse to set width and depth and click again.</p>
+      <figure>
+        <img src="gifs/balconies.gif" alt="Placing four balcony shapes and switching railing styles" loading="lazy" width="960" height="558">
+        <figcaption>Four shapes placed with keys 1&ndash;4, then railing styles changed in the panel.</figcaption>
+      </figure>
+      <h3>Edit a balcony</h3>
+      <ul>
+        <li><strong>Shape:</strong> width, depth, corner radius, elevation and slab thickness. Corner balconies have a width for each wall, the corner angle and the corner style (curved, sharp or chamfered).</li>
+        <li><strong>Guardrails:</strong> on or off, with style (glass, pickets, cable, pipe or solid parapet), height and spacing.</li>
+        <li><strong>Supports:</strong> none (cantilevered), brackets, ground columns or tie-rods, with their sizes.</li>
+        <li><strong>Finishes:</strong> slab, railing frame, infill and supports.</li>
+      </ul>
+    </section>
+
+    <section id="stairs">
+      <p class="kicker">Add detail</p>
+      <h2>Stairs &amp; ramps</h2>
+      <p><span class="ui">Draw Stair</span> and <span class="ui">Draw Ramp</span> take two clicks: the first sets the bottom, the second sets the top landing. While you move the mouse, the guide shows the run, rise, step count and the size of each step. <kbd>Shift</kbd> keeps the stair straight and <kbd>Ctrl</kbd> snaps to the grid.</p>
+      <p>To place a ready-made stair instead, open <span class="ui">Add Stairs &amp; Slopes</span>, choose a <span class="ui">Stair Type</span> and click <span class="ui">+ Add Stair / Slope</span>. It appears at the 3D cursor.</p>
+      <div class="opts">
+        <div class="opt"><h4>Types</h4><p>Straight, L-shaped with landing, spiral, zigzag (multi-storey) and slope / ramp</p></div>
+        <div class="opt"><h4>Structure</h4><p>Solid block, sawtooth, open floating treads, or stringer beams</p></div>
+      </div>
+      <figure>
+        <img src="gifs/stairs.gif" alt="Switching stair types and railing styles" loading="lazy" width="960" height="542">
+        <figcaption>Changing a stair's type and railing from its panel.</figcaption>
+      </figure>
+      <h3>Edit a stair</h3>
+      <ul>
+        <li><strong>Size by step or by flight:</strong> set the riser and tread and let the flight grow, or set the total rise and run and let ArchBuilder work out even steps.</li>
+        <li><strong>Per type:</strong> turn direction and flight lengths (L-shaped), radii, turn angle and centre column (spiral), storeys, steps per flight, stairwell gap and landing depth (zigzag), and side curbs (ramp).</li>
+        <li><strong>Guardrails:</strong> left and right rails, height and style (post &amp; rail, glass guard or solid wall).</li>
+        <li><strong>Finish:</strong> stair material, texture scale and a separate railing material.</li>
+      </ul>
+    </section>
+
+    <section id="railings">
+      <p class="kicker">Add detail</p>
+      <h2>Railings</h2>
+      <ul>
+        <li><strong>Around a floor:</strong> select a floor slab, open <span class="ui">Add Railing to Floor/Perimeter</span>, pick a <span class="ui">Railing Style</span> and click <span class="ui">+ Add Railing</span>. The railing follows the slab's edge. With nothing selected, a railing is added at the 3D cursor.</li>
+        <li><strong>Any path:</strong> <span class="ui">Draw Railing (Interactive)</span>. Click to place each post or corner. Right-click or <kbd>Enter</kbd> finishes an open run, and clicking the first post closes a loop.</li>
+      </ul>
+      <div class="opts">
+        <div class="opt"><h4>Styles</h4><p>Posts &amp; balusters (pickets), glass balustrade, cable / wire, industrial pipe, solid parapet</p></div>
+      </div>
+      <p><span class="ui">Selected Railing / Balustrade Parameters</span> controls the style, closed loop, height, post spacing, size and profile, handrail size and profile, picket spacing, glass thickness and top cap, cable count and diameter, parapet thickness, and materials.</p>
+    </section>
+
+    <section id="pillars">
+      <p class="kicker">Add detail</p>
+      <h2>Pillars &amp; colonnades</h2>
+      <span class="path">ArchBuilder &rsaquo; <b>Add Pillars &amp; Columns</b></span>
+      <ul>
+        <li><span class="ui">+ Place Pillar</span> places one column where you click on a floor or the ground. Press <kbd>1</kbd>&ndash;<kbd>6</kbd> to change the style. <kbd>B</kbd> toggles the base and <kbd>C</kbd> toggles the capital.</li>
+        <li><span class="ui">Draw Pillar / Colonnade Array</span>: click to set the start, move the mouse to stretch out a row of columns, and click to finish. Press <kbd>+</kbd> / <kbd>&minus;</kbd> to add or remove columns, <kbd>1</kbd>&ndash;<kbd>5</kbd> to change the style, and <kbd>B</kbd> to add a beam across the top.</li>
+      </ul>
+      <div class="opts">
+        <div class="opt"><h4>Column styles</h4><p>1 Square &middot; 2 Round (Tuscan) &middot; 3 Fluted (Doric) &middot; 4 Octagonal &middot; 5 Steel I-beam &middot; 6 Craftsman porch pier</p></div>
+      </div>
+      <figure>
+        <img src="gifs/pillars.gif" alt="Drawing a colonnade and switching column styles" loading="lazy" width="960" height="466">
+        <figcaption>Styles switched with number keys while dragging, and columns added with +.</figcaption>
+      </figure>
+      <p><span class="ui">Selected Pillar / Colonnade Parameters</span> covers the style, height, width, bevel, taper and flute count, the base (style, height, width), the capital (style, height, width), column count and beam for colonnades, and the material.</p>
+    </section>
+
+    <section id="cutouts">
+      <p class="kicker">Add detail</p>
+      <h2>Cutouts</h2>
+      <span class="path">ArchBuilder &rsaquo; <b>Add Cutouts &amp; Penetrations</b></span>
+      <p>Cut openings through walls, floors, roofs or any mesh. Choose a <span class="ui">Cut Shape</span>, click <span class="ui">+ Place Cutout</span>, move the mouse over the surface and click.</p>
+      <div class="opts">
+        <div class="opt"><h4>Shapes</h4><p>Rectangle, circle, straight slot, triangle, and a stairwell shaft sized for stair headroom</p></div>
+      </div>
+      <figure>
+        <img src="gifs/cutouts.gif" alt="Circle, triangle and rectangle cutouts in a brick wall" loading="lazy" width="960" height="532">
+        <figcaption>Cutouts placed on a brick wall.</figcaption>
+      </figure>
+      <p>Each cut is a wireframe cutter object. Move it with <kbd>G</kbd> and the opening follows. <span class="ui">Selected Cut / Aperture Parameters</span> sets its size and whether it cuts all the way through or only to a set depth (a pocket).</p>
+      <ul>
+        <li><span class="ui">Apply &amp; Finalize (Bake to Mesh)</span> makes the cut permanent and removes the cutter. Do this before exporting to a game engine.</li>
+        <li><span class="ui">Delete Cut (Restore Surface)</span> removes the cut and fills the surface back in.</li>
+        <li><span class="ui">Toggle Cutters Visibility</span> hides or shows all cutter wireframes.</li>
+      </ul>
+    </section>
+
+    <!-- ============ FINISH ============ -->
+    <section id="materials">
+      <p class="kicker">Finish</p>
+      <h2>Materials</h2>
+      <p>Everything ArchBuilder makes comes with materials that work in EEVEE and Cycles. Pick finishes from the Selected panel of each object. Most have a <span class="ui">Texture Scale</span> slider to size bricks, planks or tiles.</p>
+      <div class="opts">
+        <div class="opt"><h4>Walls</h4><p>Plasters, red and grey brick, concrete, stucco, cedar planks and peeling timber (PBR versions included)</p></div>
+        <div class="opt"><h4>Floors</h4><p>Oak and walnut planks, ceramic and marble tiles, polished concrete, terracotta and brick pavers</p></div>
+        <div class="opt"><h4>Roofs</h4><p>Terracotta and clay tiles, slate, standing-seam and box-profile metal, shingles, concrete</p></div>
+        <div class="opt"><h4>Fixtures</h4><p>Painted, powder-coated, anodised and steel frames, oak and walnut, clear or frosted glass, brass, black or chrome hardware</p></div>
+      </div>
+      <figure>
+        <img src="gifs/materials.gif" alt="Swapping wall and roof materials on a building" loading="lazy" width="960" height="576">
+        <figcaption>Changing a building's wall and roof finishes.</figcaption>
+      </figure>
+      <p>Materials are ordinary Blender node materials. You can open them in the Shader Editor, change them or replace them with your own.</p>
+    </section>
+
+    <section id="defaults">
+      <p class="kicker">Finish</p>
+      <h2>Defaults &amp; snapping</h2>
+      <h3>Element Creation Defaults</h3>
+      <p>These set the sizes new objects start with. Changing them doesn't affect objects you have already made. Use <span class="ui">Category</span> to show one group at a time:</p>
+      <ul>
+        <li><strong>Walls:</strong> height, thickness, alignment, and <span class="ui">Auto Floor for Rooms</span>.</li>
+        <li><strong>Doors &amp; windows:</strong> width, height, and threshold or sill height.</li>
+        <li><strong>Stairs &amp; slopes:</strong> flight width, riser, tread, structure and railings.</li>
+        <li><strong>Floors</strong> (thickness, offset), <strong>Roofs</strong> (thickness, overhang, pitch, arch rise, parapet) and <strong>Railings</strong> (style, height, spacing, cables, glass).</li>
+      </ul>
+      <h3>Snapping &amp; Guides</h3>
+      <p><span class="ui">Grid</span> snaps points to a grid of the chosen <span class="ui">Step</span>. It is on by default, at 0.5&nbsp;m. <span class="ui">Angle Snap</span> rounds wall directions to the chosen angle step (45&deg; by default) and is off by default. Hold <kbd>Ctrl</kbd> or <kbd>Shift</kbd> while drawing to snap to the grid or to angles even when these are switched off.</p>
+    </section>
+
+    <section id="languages">
+      <p class="kicker">Finish</p>
+      <h2>Languages</h2>
+      <p>Use the globe menu at the top of the panel to switch between English, Deutsch, Fran&ccedil;ais, Espa&ntilde;ol, &#26085;&#26412;&#35486; and &#31616;&#20307;&#20013;&#25991;. The change applies immediately, including the on-screen guides, without restarting Blender.</p>
+      <figure>
+        <img src="gifs/languages.gif" alt="Switching the ArchBuilder panel between six languages" loading="lazy" width="960" height="804">
+        <figcaption>The panel in all six languages.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ REFERENCE ============ -->
+    <section id="shortcuts">
+      <p class="kicker">Reference</p>
+      <h2>Keyboard shortcuts</h2>
+      <p>These keys only work while the tool is running. <kbd>Right-click</kbd> or <kbd>Esc</kbd> cancels any tool.</p>
+      <div class="keys">
+        <div class="card"><h3>Draw Wall</h3><table>
+          <tr><td><kbd>Click</kbd></td><td>Corner. Click the green ring to close</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td>Finish an open wall</td></tr>
+          <tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd></td><td>Storeys</td></tr>
+          <tr><td><kbd>P</kbd></td><td>Auto Facade on / off</td></tr>
+          <tr><td><kbd>Shift</kbd> / <kbd>Ctrl</kbd></td><td>Angle snap / grid snap</td></tr>
+          <tr><td><kbd>Backspace</kbd></td><td>Remove last corner</td></tr>
+        </table></div>
+        <div class="card"><h3>Draw Floor, Roof, Railing</h3><table>
+          <tr><td><kbd>Click</kbd></td><td>Corner or post</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td>Finish (or click the first point)</td></tr>
+          <tr><td><kbd>Shift</kbd> / <kbd>Ctrl</kbd></td><td>Angle snap / grid snap</td></tr>
+          <tr><td><kbd>Backspace</kbd></td><td>Remove last point</td></tr>
+        </table></div>
+        <div class="card"><h3>Doors &amp; windows</h3><table>
+          <tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd></td><td>Choose floor</td></tr>
+          <tr><td><kbd>A</kbd></td><td>Floor from mouse position</td></tr>
+          <tr><td><kbd>F</kbd></td><td>Flip facing</td></tr>
+          <tr><td><kbd>Click</kbd></td><td>Place</td></tr>
+        </table></div>
+        <div class="card"><h3>Place Balcony</h3><table>
+          <tr><td><kbd>1</kbd>&ndash;<kbd>4</kbd></td><td>Rectangular, curved, chamfered, corner</td></tr>
+          <tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd> / <kbd>A</kbd></td><td>Choose floor / from mouse</td></tr>
+          <tr><td><kbd>F</kbd></td><td>Flip outside / inside</td></tr>
+        </table></div>
+        <div class="card"><h3>Place Pillar</h3><table>
+          <tr><td><kbd>1</kbd>&ndash;<kbd>6</kbd></td><td>Square, round, fluted, octagonal, I-beam, Craftsman</td></tr>
+          <tr><td><kbd>B</kbd></td><td>Base on / off</td></tr>
+          <tr><td><kbd>C</kbd></td><td>Capital on / off</td></tr>
+        </table></div>
+        <div class="card"><h3>Draw Colonnade</h3><table>
+          <tr><td><kbd>+</kbd> <kbd>&minus;</kbd></td><td>More / fewer columns</td></tr>
+          <tr><td><kbd>1</kbd>&ndash;<kbd>5</kbd></td><td>Column style</td></tr>
+          <tr><td><kbd>B</kbd></td><td>Beam on / off</td></tr>
+        </table></div>
+        <div class="card"><h3>Draw Stair / Ramp</h3><table>
+          <tr><td><kbd>Click</kbd> &times;2</td><td>Bottom, then top</td></tr>
+          <tr><td><kbd>Shift</kbd> / <kbd>Ctrl</kbd></td><td>Straight / grid snap</td></tr>
+        </table></div>
+      </div>
+    </section>
+
+    <section id="troubleshooting">
+      <p class="kicker">Reference</p>
+      <h2>Troubleshooting</h2>
+      <h3>I can't find the ArchBuilder tab</h3>
+      <p>Press <kbd>N</kbd> with the mouse over the 3D Viewport. If the tab still isn't there, check that ArchBuilder is enabled in <span class="ui">Edit</span> &rsaquo; <span class="ui">Preferences</span> &rsaquo; <span class="ui">Add-ons</span>, and that you are on Blender 4.2 or newer.</p>
+      <h3>Textures look flat or grey</h3>
+      <p>The viewport is in Solid mode. Click <span class="ui">Material Preview Shading</span> at the top of the panel, or switch to Rendered.</p>
+      <h3>&ldquo;Please select an ArchBuilder Wall first&rdquo;</h3>
+      <p>Roof buttons need a wall to be selected. Click the room's wall and try again. The wall must enclose at least three corners.</p>
+      <h3>My wall panel says &ldquo;Managed by 1-Click Building&rdquo;</h3>
+      <p>That wall belongs to a generated building. Change it in <span class="ui">Selected Building Attributes</span>, which you get by clicking any part of the building.</p>
+      <h3>The generator removed my building</h3>
+      <p><span class="ui">+ Generate Building</span> replaces the generated building in the scene. Press <kbd>Ctrl</kbd>&thinsp;+&thinsp;<kbd>Z</kbd> to get it back. To keep several buildings, see <a href="#generator">One-click buildings</a>.</p>
+      <h3>My Edit Mode changes disappeared</h3>
+      <p>ArchBuilder rebuilds objects from their settings, which replaces manual edits. Make changes in the Selected panel instead. For hand modelling, finish the ArchBuilder part first and then work on a copy.</p>
+      <h3>Exporting to Unreal, Unity or Godot</h3>
+      <p>Apply every cutout with <span class="ui">Apply &amp; Finalize</span> first, so the openings become real geometry and the cutter objects are removed.</p>
+      <h3>Balconies don't appear on a generated building</h3>
+      <p>Balconies need at least 2 storeys, and <span class="ui">Include Balconies</span> must be ticked in <span class="ui">Selected Building Attributes</span>.</p>
+    </section>
+  </main>
+
+  <footer>ArchBuilder 2.3.0 &middot; For Blender 4.2 or newer &middot; Interface available in English, German, French, Spanish, Japanese and Simplified Chinese.</footer>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.index a[href^="#"]'));
+  var byId = {};
+  links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var toc = document.getElementById('toc');
+  var narrow = window.matchMedia('(max-width: 900px)');
+  function syncToc() { if (toc) toc.open = !narrow.matches; }
+  syncToc();
+  if (narrow.addEventListener) narrow.addEventListener('change', syncToc);
+  links.forEach(function (a) { a.addEventListener('click', function () { if (narrow.matches && toc) toc.open = false; }); });
+  if (!('IntersectionObserver' in window)) return;
+  var current = null;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      var a = byId[e.target.id];
+      if (!a || a === current) return;
+      if (current) current.classList.remove('on');
+      a.classList.add('on'); current = a;
+    });
+  }, { rootMargin: '-15% 0px -70% 0px' });
+  document.querySelectorAll('main section[id]').forEach(function (s) { io.observe(s); });
+})();
+</script>
